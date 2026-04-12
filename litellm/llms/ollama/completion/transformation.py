@@ -236,6 +236,14 @@ class OllamaConfig(BaseConfig):
         api_base = (
             api_base or get_secret_str("OLLAMA_API_BASE") or "http://localhost:11434"
         )
+
+        # Strip existing provider suffixes from api_base before appending /api/show
+        sanitized_base = api_base.rstrip("/")
+        for suffix in ["/api/chat", "/api/generate"]:
+            if sanitized_base.endswith(suffix):
+                sanitized_base = sanitized_base[: -len(suffix)]
+        api_base = sanitized_base.rstrip("/")
+
         api_key = self.get_api_key()
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
 
